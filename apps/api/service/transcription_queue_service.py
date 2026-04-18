@@ -8,7 +8,7 @@ from libs.config import Config
 
 class TranscriptionQueueService:
     QUEUE_NAME = "whisper"
-    JOB_FUNCTION_PATH = "apps.worker.service.transcription_job_service.process_transcription_job"
+    JOB_FUNCTION_PATH = "worker.service.transcription_job_service.process_transcription_job"
 
     def __init__(self, config: Config) -> None:
         self._redis = Redis(

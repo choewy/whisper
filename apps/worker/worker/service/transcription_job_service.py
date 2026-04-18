@@ -1,0 +1,1 @@
+from service.transcription_job_service import process_transcription_job
