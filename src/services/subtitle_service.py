@@ -1,5 +1,6 @@
 import os
 import re
+import uuid
 
 from models import SubtitleItem
 from typing import Iterable, List
@@ -30,8 +31,15 @@ class SubtitleService:
 
     @staticmethod
     def split_script_into_sentences(script: str) -> List[str]:
-        line_candidates = [re.sub(r"\s+", " ", line).strip() for line in script.splitlines()]
-        normalized_lines = [line for line in line_candidates if line]
+        normalized_lines: list[str] = []
+
+        for line in script.splitlines():
+            candidate = re.sub(r"\s+", " ", line).strip()
+
+            if not candidate:
+                continue
+
+            normalized_lines.append(candidate)
 
         sentences: List[str] = []
 
@@ -121,8 +129,10 @@ class SubtitleService:
         self,
         segments: Iterable[Segment],
         script: str,
-        output_path: str = ".temp/script_based.srt",
     ) -> str:
+        filename = f"{uuid.uuid4()}.srt"
+        output_path = f".temp/{filename}"
+
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
         sentences = self.split_script_into_sentences(script)
@@ -138,4 +148,4 @@ class SubtitleService:
                 f.write(timestamp)
                 f.write(text)
 
-        return output_path
+        return filename

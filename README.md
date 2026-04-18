@@ -4,7 +4,7 @@
 
 - Python 3.13.x
 
-## create venv
+## Create venv
 
 ### MacOS
 
@@ -20,14 +20,24 @@ python -m venv .venv
 .venv\Scripts\activate.bat
 ```
 
-## install dependencies
+## Install dependencies
 
 ```zsh
 pip install -r requirements.txt
 ```
 
-## run
+## Run
+
+### CLI
 
 ```zsh
-python src/main.py
+python src/cli.py \
+  --audio example/audio.wav \
+  --script ""
+```
+
+### FastAPI
+
+```zsh
+cd src && uvicorn app:app --reload && cd ..
 ```
