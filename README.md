@@ -77,6 +77,17 @@ apps/
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6370
 REDIS_DB=0
+
+# Optional Whisper segmentation tuning.
+# Smaller silence value and lower max speech duration create finer segments.
+WHISPER_BEAM_SIZE=5
+WHISPER_VAD_MIN_SILENCE_MS=250
+WHISPER_VAD_SPEECH_PAD_MS=120
+WHISPER_VAD_MAX_SPEECH_DURATION_S=2.0
+
+# Optional fallback split when script is empty.
+SUBTITLE_AUTO_MAX_CHARS=18
+SUBTITLE_AUTO_MAX_DURATION_S=2.0
 ```
 
 ```zsh
