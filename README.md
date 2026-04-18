@@ -88,13 +88,13 @@ cp .env.local .env
 ### API
 
 ```zsh
-PYTHONPATH=apps/api uvicorn main:app --host 0.0.0.0 --port 8000
+PYTHONPATH=. uvicorn apps.api.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### Worker
 
 ```zsh
-PYTHONPATH=apps/worker python -m main
+PYTHONPATH=. python -m apps.worker.main
 ```
 
 ## Example Request

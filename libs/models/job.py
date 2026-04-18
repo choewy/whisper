@@ -5,8 +5,8 @@ from typing import Any
 @dataclass(frozen=True)
 class TranscriptionJob:
     job_id: str
-    audio_url: str
     script: str
+    audio_url: str
     callback_url: str
 
     @classmethod

@@ -1,2 +1,2 @@
-from libs.models.job import TranscriptionJob
-from libs.models.subtitle import SubtitleItem
+from libs.models.job import *
+from libs.models.subtitle import *

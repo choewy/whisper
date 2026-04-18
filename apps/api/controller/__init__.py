@@ -1,1 +1,1 @@
-from apps.api.controller.transcription_controller import router
+from apps.api.controller.transcription_controller import *

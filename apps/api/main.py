@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 
-from apps.api.controller import router as transcription_router
+from apps.api.controller import transcribe_controller
 from apps.api.controller.transcription_controller import queue_service
 
 
 app = FastAPI()
-app.include_router(transcription_router)
+app.include_router(transcribe_controller)
 
 
 @app.on_event("shutdown")
