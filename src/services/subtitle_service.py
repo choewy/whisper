@@ -29,39 +29,30 @@ class SubtitleService:
         return f"{h:02}:{m:02}:{s:02},{ms:03}"
 
     @staticmethod
-    def strip_chunks(parts: list[str]) -> list[str]:
-        chunks: list[str] = []
-
-        for chunk in parts:
-            striped = chunk.strip()
-
-            if not striped:
-                continue
-
-            chunks.append(striped)
-
-        return chunks
-
-    @staticmethod
     def split_script_into_sentences(script: str) -> List[str]:
-        normalized = re.sub(r"\s+", " ", script).strip()
-
-        if not normalized:
-            return []
-
-        parts = re.split(r"(?<=[.!?。！？])\s+", normalized)
+        line_candidates = [re.sub(r"\s+", " ", line).strip() for line in script.splitlines()]
+        normalized_lines = [line for line in line_candidates if line]
 
         sentences: List[str] = []
 
-        for part in parts:
-            part = part.strip()
-            if not part:
-                continue
+        for line in normalized_lines:
+            parts = re.split(r"(?<=[.!?。！？])\s+", line)
 
-            if len(part) > 45 and "," in part:
-                sentences.extend(SubtitleService.strip_chunks(part.split(",")))
-            else:
+            for part in parts:
+                part = part.strip()
+
+                if not part:
+                    continue
+
                 sentences.append(part)
+
+        if sentences:
+            return sentences
+
+        normalized = re.sub(r"\s+", " ", script).strip()
+
+        if normalized:
+            return [normalized]
 
         return sentences
 
