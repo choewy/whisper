@@ -4,7 +4,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class TranscriptionJob:
-    job_id: str
+    id: str
     script: str
     audio_url: str
     callback_url: str
@@ -13,7 +13,7 @@ class TranscriptionJob:
     def from_payload(cls, payload: dict[str, Any]) -> "TranscriptionJob":
         missing_fields = [
             key
-            for key in ("job_id", "audio_url", "callback_url")
+            for key in ("id", "audio_url", "callback_url")
             if not payload.get(key)
         ]
 
@@ -26,7 +26,7 @@ class TranscriptionJob:
             script = ""
 
         return cls(
-            job_id=str(payload["job_id"]),
+            id=str(payload["id"]),
             audio_url=str(payload["audio_url"]),
             script=str(script),
             callback_url=str(payload["callback_url"]),

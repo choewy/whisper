@@ -34,8 +34,8 @@ class WhisperWorker:
         audio_path = ""
 
         try:
-            LOGGER.info("processing job_id=%s", job.job_id)
-            audio_path = self._download_audio(job.audio_url, job.job_id)
+            LOGGER.info("processing id=%s", job.id)
+            audio_path = self._download_audio(job.audio_url, job.id)
 
             segments, info = self._whisper_service.transcribe(audio_path)
             subtitle_id = self._subtitle_service.build_srt(
@@ -54,13 +54,13 @@ class WhisperWorker:
             )
             self._post_callback(job.callback_url, result_payload)
 
-            LOGGER.info("completed job_id=%s", job.job_id)
+            LOGGER.info("completed id=%s", job.id)
             return result_payload
         except Exception as exc:
-            LOGGER.exception("failed job_id=%s", job.job_id)
+            LOGGER.exception("failed id=%s", job.id)
             self._send_failure(
+                id=job.id,
                 callback_url=job.callback_url,
-                job_id=job.job_id,
                 error_message=str(exc),
             )
             raise
@@ -68,14 +68,14 @@ class WhisperWorker:
             if audio_path and os.path.exists(audio_path):
                 os.remove(audio_path)
 
-    def _download_audio(self, audio_url: str, job_id: str) -> str:
+    def _download_audio(self, audio_url: str, id: str) -> str:
         suffix = self._guess_extension(audio_url)
-        safe_job_id = self._safe_filename(job_id)
+        safe_id = self._safe_filename(id)
 
         with tempfile.NamedTemporaryFile(
             mode="wb",
             dir=self._temp_dir,
-            prefix=f"{safe_job_id}_",
+            prefix=f"{safe_id}_",
             suffix=suffix,
             delete=False,
         ) as temp_file:
@@ -98,19 +98,29 @@ class WhisperWorker:
             LOGGER.warning("missing callback_url. skipping callback")
             return
 
-        self._http_service.post_json(callback_url, payload)
+        try:
+            self._http_service.post_json(callback_url, payload)
+        except Exception as e:
+            LOGGER.warning(
+                "failed to post callback. callback_url=%s id=%s status=%s error=%s",
+                callback_url,
+                payload.get("id") or payload.get("job_id"),
+                payload.get("status"),
+                e,
+                exc_info=False,
+            )
 
-    def _send_failure(self, callback_url: str, job_id: str, error_message: str) -> None:
+    def _send_failure(self, callback_url: str, id: str, error_message: str) -> None:
         if not callback_url:
             LOGGER.warning(
-                "job failed but callback_url is missing. job_id=%s error=%s",
-                job_id,
+                "job failed but callback_url is missing. id=%s error=%s",
+                id,
                 error_message,
             )
             return
 
         payload = {
-            "job_id": job_id,
+            "id": id,
             "status": "failed",
             "error": {
                 "message": error_message,
@@ -121,8 +131,8 @@ class WhisperWorker:
             self._post_callback(callback_url, payload)
         except Exception:
             LOGGER.exception(
-                "failed to send failure callback. job_id=%s callback_url=%s",
-                job_id,
+                "failed to send failure callback. id=%s callback_url=%s",
+                id,
                 callback_url,
             )
 
@@ -134,7 +144,7 @@ class WhisperWorker:
         info: TranscriptionInfo,
     ) -> dict[str, Any]:
         return {
-            "job_id": job.job_id,
+            "id": job.id,
             "status": "completed",
             "result": {
                 "subtitle_id": subtitle_id,
