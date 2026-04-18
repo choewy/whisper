@@ -1,43 +1,111 @@
-# Whisper
+# Whisper (FastAPI + RQ Worker)
 
-## Requirements
+## Architecture
 
-- Python 3.13.x
+1. Client -> FastAPI
+2. FastAPI -> RQ enqueue
+3. Python worker(RQ) -> dequeue
+4. Whisper
+5. NestJS callback API
 
-## Create venv
+## Project Structure
 
-### MacOS
+```text
+libs/
+  config/
+  models/
+  services/
 
-```zsh
-python3 -m venv .venv
-source .venv/bin/activate
+apps/
+  api/
+    dto/
+    controller/
+    service/
+    main.py
+
+  worker/
+    service/
+    worker/
+    main.py
 ```
 
-### Windows
+## Request Payload
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate.bat
+`POST /transcribe`
+
+```json
+{
+  "id": "job-001",
+  "audio_url": "https://example.com/audio.wav",
+  "script": "optional script",
+  "callback_url": "https://your-nest-api.com/whisper/callback"
+}
 ```
 
-## Install dependencies
+## Callback Payload
+
+### Succeed
+
+```json
+{
+  "id": "job-001",
+  "status": "completed",
+  "result": {
+    "subtitle_id": "uuid.srt",
+    "subtitle": "1\n00:00:00,000 --> 00:00:01,000\n...",
+    "language": "ko",
+    "duration": 12.34
+  }
+}
+```
+
+### Failed
+
+```json
+{
+  "job_id": "job-001",
+  "status": "failed",
+  "error": {
+    "message": "error message"
+  }
+}
+```
+
+## Environment
+
+```env
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6370
+REDIS_DB=0
+```
 
 ```zsh
-pip install -r requirements.txt
+cp .env.local .env
 ```
 
 ## Run
 
-### CLI
+### API
 
 ```zsh
-python src/cli.py \
-  --audio example/audio.wav \
-  --script ""
+PYTHONPATH=apps/api uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-### FastAPI
+### Worker
 
 ```zsh
-cd src && uvicorn app:app --reload && cd ..
+PYTHONPATH=apps/worker python -m main
+```
+
+## Example Request
+
+```zsh
+curl -X POST http://127.0.0.1:8000/transcriptions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "job_id":"job-001",
+    "audio_url":"https://example.com/audio.wav",
+    "script":"안녕하세요.",
+    "callback_url":"https://your-nest-api.com/whisper/callback"
+  }'
 ```

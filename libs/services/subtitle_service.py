@@ -1,10 +1,11 @@
 import os
 import re
 import uuid
-
-from models import SubtitleItem
 from typing import Iterable, List
+
 from faster_whisper.transcribe import Segment
+
+from libs.models.subtitle import SubtitleItem
 
 
 class SubtitleService:
@@ -82,7 +83,6 @@ class SubtitleService:
                     end=segment.end,
                     text=segment.text.strip(),
                 )
-
                 items.append(item)
 
             return items
@@ -97,7 +97,6 @@ class SubtitleService:
                     end=segment_list[i].end,
                     text=sentences[i],
                 )
-
                 items.append(item)
 
             return items
@@ -120,7 +119,6 @@ class SubtitleService:
                 end=chunk[-1].end,
                 text=sentences[sentence_idx],
             )
-
             items.append(item)
 
         return items
@@ -138,14 +136,17 @@ class SubtitleService:
         sentences = self.split_script_into_sentences(script)
         items = self.merge_segments_by_sentence_count(segments, sentences)
 
-        with open(output_path, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as file:
             for i, item in enumerate(items, start=1):
                 sequence = f"{i}\n"
-                timestamp = f"{self.format_time(item.start)} --> {self.format_time(item.end)}\n"
+                timestamp = (
+                    f"{self.format_time(item.start)} --> "
+                    f"{self.format_time(item.end)}\n"
+                )
                 text = f"{item.text.strip()}\n\n"
 
-                f.write(sequence)
-                f.write(timestamp)
-                f.write(text)
+                file.write(sequence)
+                file.write(timestamp)
+                file.write(text)
 
         return filename
