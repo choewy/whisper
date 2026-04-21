@@ -4,16 +4,16 @@
   "description": "Whisper Node.js Wrapper",
   "license": "MIT",
   "author": "choewy",
-  "homepage": "https://github.com/choewy/whisper/README.md",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/choewy/whisper.git"
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
-  "bugs": {
-    "url": "https://github.com/choewy/whisper/issues"
-  },
-  "keywords": [
-    "whisper"
+  "files": [
+    "dist"
   ],
   "scripts": {
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
@@ -46,5 +46,16 @@
   },
   "lint-staged": {
     "{src,test}/**/*.ts": "eslint --fix"
-  }
+  },
+  "homepage": "https://github.com/choewy/whisper/README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/choewy/whisper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/choewy/whisper/issues"
+  },
+  "keywords": [
+    "whisper"
+  ]
 }
