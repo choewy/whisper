@@ -1,8 +1,2 @@
-__pycache__
-DS_Store
-
-.venv
-.temp
-.env
-
-example/*.srt
+node_modules
+dist
