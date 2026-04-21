@@ -18,6 +18,7 @@
     "vendor/whisper.cpp"
   ],
   "scripts": {
+    "prepare": "node scripts/prepare",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "dev": "NODE_ENV=development nodemon -e ts -w src --exec ts-node src/main.ts",
     "build": "npx tsc -b tsconfig.build.json && chmod +x dist/cli.js",
