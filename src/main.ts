@@ -10,6 +10,7 @@ async function main() {
 
   await whisper.initialize();
   const result = await whisper.transcribe('./test/audio.wav', { language: 'auto' });
+
   console.log(result);
 }
 
