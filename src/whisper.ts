@@ -51,15 +51,15 @@ export class Whisper {
     const command = this.command.build({
       model: this.options.model,
       input: `"${path.normalize(resolvedPath)}"`,
-      options,
+      options: { language: 'auto', ...options },
     });
 
     console.log('[@choewy/whisper] Transcribing:', input, '\n');
 
-    return this.toArray(await this.shell.run(command));
+    return this.transcriptToArray(await this.shell.run(command));
   }
 
-  private toArray(transcript: string): WhisperTranscriptLine[] {
+  private transcriptToArray(transcript: string): WhisperTranscriptLine[] {
     const lines: string[] = transcript.match(/\[[0-9:.]+\s-->\s[0-9:.]+\].*/g) ?? [];
 
     lines.shift();
