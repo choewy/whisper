@@ -2,6 +2,7 @@
 .gitignore
 .gitmodules
 .husky
+.npm-cache
 
 /temp
 /node_modules
