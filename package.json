@@ -1,6 +1,6 @@
 {
   "name": "@choewy/whisper",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Whisper Node.js Wrapper",
   "license": "MIT",
   "author": "choewy",
