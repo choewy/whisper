@@ -6,6 +6,7 @@
   "author": "choewy",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": "dist/cli.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -19,7 +20,7 @@
   "scripts": {
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "dev": "NODE_ENV=development nodemon -e ts -w src --exec ts-node src/main.ts",
-    "build": "npx tsc -b tsconfig.build.json && chmod +x dist/download.js",
+    "build": "npx tsc -b tsconfig.build.json && chmod +x dist/download.js dist/cli.js",
     "test": "jest --config jest.config.json --passWithNoTests",
     "test:watch": "jest --config jest.config.json --watch"
   },
