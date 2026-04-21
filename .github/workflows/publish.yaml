@@ -36,6 +36,7 @@ jobs:
 
   npm-publish:
     runs-on: ubuntu-latest
+
     needs: check-version
 
     if: needs.check-version.outputs.should_publish == 'true'
@@ -61,12 +62,13 @@ jobs:
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          pnpm ci
+          pnpm install --frozen-lockfile
           pnpm run build
           pnpm publish
 
   github-packages:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+
     needs: check-version
 
     if: needs.check-version.outputs.should_publish == 'true'
@@ -91,13 +93,17 @@ jobs:
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
           npm publish
 
   tagging:
-    runs-on: ubuntu-22.04
-    needs: check-version
+    runs-on: ubuntu-latest
+
+    needs:
+      - check-version
+      - npm-publish
+      - github-packages
 
     if: needs.check-version.outputs.should_publish == 'true'
 
@@ -114,8 +120,13 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
   release:
-    needs: tagging
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+
+    needs:
+      - npm-publish
+      - github-packages
+      - tagging
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -134,7 +145,7 @@ jobs:
 
       - name: Build dist
         run: |
-          pnpm ci
+          pnpm install --frozen-lockfile
           pnpm run build
 
       - name: Package release assets
