@@ -3,28 +3,19 @@ import { resolve } from 'path';
 
 import { MODEL_PATH, WHISPER_CLI_PATH } from './constants';
 import { WhisperModel } from './model';
-import { WhisperCppCommandInput, WhisperCppCommandInputOptions, WhisperOptions, WhisperShellCommand } from './types';
+import { WhisperCppCommandInput, WhisperCppCommandInputOptions, WhisperOptions } from './types';
 
 export class WhisperCommand {
   constructor(readonly options: WhisperOptions) {}
 
   public build(input: WhisperCppCommandInput): string {
-    const executable = this.buildExecutable(input);
-
-    return [executable.command, ...executable.args.map((arg) => this.escapeShellArgument(arg))].join(' ');
-  }
-
-  public buildExecutable(input: WhisperCppCommandInput): WhisperShellCommand {
     const model = WhisperModel.find(input.model);
 
     if (!model) {
       throw new Error(`modelName "${input.model}" not found in list of models. Check your spelling OR use a custom modelPath.`);
     }
 
-    return {
-      command: WHISPER_CLI_PATH,
-      args: [...this.createArgs(input.options), '-m', `./models/${model.bin}`, '-f', input.input],
-    };
+    return [WHISPER_CLI_PATH, ...this.createArgs(input.options), '-m', `./models/${model.bin}`, '-f', input.input].join(' ');
   }
 
   public hasModelDownloaded(name: string) {
@@ -97,17 +88,5 @@ export class WhisperCommand {
     }
 
     return args;
-  }
-
-  private escapeShellArgument(input: string): string {
-    if (input.length === 0) {
-      return '""';
-    }
-
-    if (!/[\s"]/u.test(input)) {
-      return input;
-    }
-
-    return `"${input.replace(/"/g, '\\"')}"`;
   }
 }

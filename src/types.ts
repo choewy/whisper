@@ -23,11 +23,6 @@ export type WhisperShellOptions = {
   debug?: boolean;
 };
 
-export type WhisperShellCommand = {
-  command: string;
-  args: string[];
-};
-
 export type WhisperTranscriptLine = {
   start: string;
   end: string;

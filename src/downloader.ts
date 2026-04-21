@@ -9,21 +9,15 @@ import { WhisperModel } from './model';
 
 export class WhisperModelDownloader {
   public async run(name: string) {
-    try {
-      this.ensureDownloadScriptExists();
+    this.ensureDownloadScriptExists();
 
-      if (!name) {
-        return;
-      }
-
-      await this.downloadModel(name);
-      console.log('[@choewy/whisper] Attempting to compile model...');
-      await this.execute('make', [], ROOT_PATH);
-    } catch (error) {
-      console.log('ERROR Caught in downloadModel');
-      console.log(error);
-      return error;
+    if (!name) {
+      return;
     }
+
+    await this.downloadModel(name);
+    console.log('[@choewy/whisper] Attempting to compile model...');
+    await this.execute('make', [], ROOT_PATH);
   }
 
   public async runWithPrompt(): Promise<unknown> {
@@ -42,10 +36,6 @@ export class WhisperModelDownloader {
       await this.downloadModel(name);
       console.log('[@choewy/whisper] Attempting to compile model...');
       await this.execute('make', [], ROOT_PATH);
-    } catch (error) {
-      console.log('ERROR Caught in downloadModel');
-      console.log(error);
-      return error;
     } finally {
       prompt.close();
     }
@@ -91,10 +81,14 @@ export class WhisperModelDownloader {
   }
 
   private async downloadModel(name: string) {
+    const scriptName = process.platform === 'win32' ? 'download-ggml-model.cmd' : 'download-ggml-model.sh';
+    const scriptPath = resolve(MODEL_PATH, scriptName);
+
     if (process.platform === 'win32') {
-      await this.execute('cmd.exe', ['/c', 'download-ggml-model.cmd', name], MODEL_PATH);
+      await this.execute('cmd.exe', ['/c', scriptPath, name], MODEL_PATH);
     } else {
-      await this.execute('./download-ggml-model.sh', [name], MODEL_PATH);
+      // Run through `sh` so npm-packed files do not require executable mode bits.
+      await this.execute('sh', [scriptPath, name], MODEL_PATH);
     }
   }
 
@@ -107,6 +101,11 @@ export class WhisperModelDownloader {
 
         if (code === 'ENOENT') {
           rejectPromise(new Error(`[@choewy/whisper] Command not found: ${command}. Ensure required tools are installed and available in PATH. (cwd: ${cwd})`));
+          return;
+        }
+
+        if (code === 'EACCES') {
+          rejectPromise(new Error(`[@choewy/whisper] Permission denied while running command: ${command} ${args.join(' ')}. Check filesystem permissions under ${cwd}.`));
           return;
         }
 
