@@ -64,6 +64,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
     env:
       VERSION: ${{ needs.check-version.outputs.version }}
       TAG: ${{ needs.check-version.outputs.tag }}
@@ -85,6 +86,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          registry-url: https://registry.npmjs.org
 
       - name: Update submodules to latest
         run: |
@@ -97,20 +99,54 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Publish to npm
+      - name: Publish to npm (OIDC first, token fallback)
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
         run: |
           set -euo pipefail
 
-          if [[ -z "${NPM_TOKEN}" ]]; then
-            echo "NPM_TOKEN is required."
-            exit 1
+          rm -f "${HOME}/.npmrc"
+
+          publish_npm() {
+            pnpm publish --no-git-checks --access public --registry https://registry.npmjs.org
+          }
+
+          set +e
+          OIDC_OUTPUT="$(publish_npm 2>&1)"
+          OIDC_EXIT=$?
+          set -e
+
+          echo "${OIDC_OUTPUT}"
+
+          if [[ ${OIDC_EXIT} -eq 0 ]]; then
+            echo "Published to npm with OIDC trusted publishing."
+            exit 0
+          fi
+
+          echo "OIDC publish failed. Trying NPM_TOKEN fallback..."
+
+          if [[ -z "${NPM_TOKEN:-}" ]]; then
+            echo "::error::OIDC publish failed and NPM_TOKEN is not configured."
+            echo "::error::Set up npm Trusted Publisher OR set NPM_TOKEN as a granular token with bypass 2FA."
+            exit ${OIDC_EXIT}
           fi
 
           printf '%s\n' "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
 
-          pnpm publish --no-git-checks --access public --registry https://registry.npmjs.org
+          set +e
+          TOKEN_OUTPUT="$(publish_npm 2>&1)"
+          TOKEN_EXIT=$?
+          set -e
+
+          echo "${TOKEN_OUTPUT}"
+
+          if [[ ${TOKEN_EXIT} -ne 0 ]]; then
+            if [[ "${TOKEN_OUTPUT}" == *"EOTP"* ]]; then
+              echo "::error::NPM_TOKEN requires OTP. Use a granular npm token with bypass 2FA, or use npm Trusted Publishing."
+            fi
+            exit ${TOKEN_EXIT}
+          fi
 
       - name: Publish to GitHub Packages
         env:
