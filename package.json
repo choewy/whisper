@@ -1,0 +1,50 @@
+{
+  "name": "@choewy/whisper",
+  "version": "1.0.0",
+  "description": "Whisper Node.js Wrapper",
+  "license": "MIT",
+  "author": "choewy",
+  "homepage": "https://github.com/choewy/whisper/README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/choewy/whisper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/choewy/whisper/issues"
+  },
+  "keywords": [
+    "whisper"
+  ],
+  "scripts": {
+    "lint": "eslint \"{src,test}/**/*.ts\" --fix",
+    "dev": "NODE_ENV=development nodemon -e ts -w src --exec ts-node src/main.ts",
+    "build": "npx tsc -b tsconfig.build.json && chmod +x dist/download.js",
+    "test": "jest --config jest.config.json --passWithNoTests",
+    "test:watch": "jest --config jest.config.json --watch"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.6.0",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "globals": "^17.5.0",
+    "husky": "^9.1.7",
+    "jest": "^30.3.0",
+    "lint-staged": "^16.4.0",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.3",
+    "ts-jest": "^29.4.9",
+    "ts-loader": "^9.5.7",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.0"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": "eslint --fix"
+  }
+}

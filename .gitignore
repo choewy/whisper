@@ -1,10 +1,5 @@
-__pycache__
+/node_modules
+/dist
+
 DS_Store
 .codex
-
-.venv
-.temp
-.env
-
-example/*.srt
-

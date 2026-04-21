@@ -1,0 +1,22 @@
+{
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".*\\.spec\\.ts$",
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "modulePaths": ["<rootDir>"],
+  "moduleNameMapper": {
+    "^@src/config$": "<rootDir>/src",
+    "^@src/config/(.*)$": "<rootDir>/src/$1"
+  },
+  "transform": {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        "tsconfig": "<rootDir>/tsconfig.json",
+        "diagnostics": false
+      }
+    ]
+  },
+  "collectCoverageFrom": ["src/**/*.ts", "!**/test/**/*.ts", "!**/index.ts"],
+  "testPathIgnorePatterns": ["/node_modules/", "/dist/"]
+}
