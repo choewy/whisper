@@ -3,6 +3,7 @@
 .gitmodules
 .husky
 .npm-cache
+.npmrc
 
 /temp
 /node_modules
