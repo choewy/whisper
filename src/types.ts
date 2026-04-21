@@ -1,7 +1,6 @@
 export type WhisperCppCommandInput = {
-  filePath: string;
-  modelName?: string | null;
-  modelPath?: string | null;
+  model: string;
+  input: string;
   options?: WhisperCppCommandInputOptions;
 };
 
@@ -12,9 +11,6 @@ export type WhisperCppCommandInputOptions = {
   timestampSize?: number;
   wordTimestamps?: boolean;
   language?: string;
-  useGpu?: boolean;
-  gpuDevice?: number;
-  flashAttention?: boolean;
 };
 
 export type WhisperCommandResult = {
@@ -25,18 +21,20 @@ export type WhisperCommandResult = {
 
 export type WhisperShellOptions = {
   debug?: boolean;
-  async?: boolean;
-};
-
-export type WhisperTranscribeOptions = {
-  modelName?: string;
-  modelPath?: string;
-  commandOptions?: WhisperCppCommandInputOptions;
-  shellOptions?: WhisperShellOptions;
 };
 
 export type WhisperTranscriptLine = {
   start: string;
   end: string;
   speech: string;
+};
+
+export type WhisperModelName = 'tiny' | 'tiny.en' | 'base' | 'base.en' | 'small' | 'small.en' | 'medium' | 'medium.en' | 'large' | 'large-v1';
+export type WhisperOptions = {
+  model: WhisperModelName;
+  gpu?: boolean;
+  gpuDevice?: number;
+  flashAttention?: boolean;
+  debug?: boolean;
+  async?: boolean;
 };

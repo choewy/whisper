@@ -1,58 +1,31 @@
 import { existsSync } from 'fs';
 import { resolve } from 'path';
 
-import { DEFAULT_MODEL, MODEL_PATH, WHISPER_CLI_PATH } from './constants';
+import { MODEL_PATH, WHISPER_CLI_PATH } from './constants';
 import { WhisperModel } from './model';
-import { WhisperCppCommandInput, WhisperCppCommandInputOptions } from './types';
-
-const DOWNLOAD_HINT = "Run 'npx @choewy/whisper download'";
-const MODELS_DIR = './models';
+import { WhisperCppCommandInput, WhisperCppCommandInputOptions, WhisperOptions } from './types';
 
 export class WhisperCommand {
+  constructor(readonly options: WhisperOptions) {}
+
   public build(input: WhisperCppCommandInput): string {
-    const modelPath = this.resolveModelPath(input.modelName, input.modelPath);
-    const args = this.createArgs(input.options);
-    const parts = [WHISPER_CLI_PATH, ...args, '-m', modelPath, '-f', input.filePath];
-
-    return parts.join(' ');
-  }
-
-  private resolveModelPath(modelName?: string | null, modelPath?: string | null): string {
-    const name = modelName ?? undefined;
-    const path = modelPath ?? undefined;
-
-    if (name && path) {
-      throw new Error('Submit a modelName OR a modelPath. NOT BOTH!');
-    }
-
-    if (path) {
-      return path;
-    }
-
-    if (!name) {
-      console.log(`[@choewy/whisper] No 'modelName' or 'modelPath' provided. Trying default model: ${DEFAULT_MODEL}\n`);
-      return this.resolveInstalledModelPath(DEFAULT_MODEL, true);
-    }
-
-    return this.resolveInstalledModelPath(name, false);
-  }
-
-  private resolveInstalledModelPath(modelName: string, isDefault: boolean): string {
-    const model = WhisperModel.find(modelName);
+    const model = WhisperModel.find(input.model);
 
     if (!model) {
-      throw new Error(`modelName "${modelName}" not found in list of models. Check your spelling OR use a custom modelPath.`);
+      throw new Error(`modelName "${input.model}" not found in list of models. Check your spelling OR use a custom modelPath.`);
     }
 
-    const resolvedModelPath = `${MODELS_DIR}/${model.bin}`;
-    const absoluteModelPath = resolve(MODEL_PATH, model.bin);
+    return [WHISPER_CLI_PATH, ...this.createArgs(input.options), '-m', `./models/${model.bin}`, '-f', input.input].join(' ');
+  }
 
-    if (!existsSync(absoluteModelPath)) {
-      const target = isDefault ? DEFAULT_MODEL : modelName;
-      throw new Error(`'${target}' not downloaded! ${DOWNLOAD_HINT}`);
+  public hasModelDownloaded(name: string) {
+    const model = WhisperModel.find(name);
+
+    if (!model) {
+      throw new Error(`modelName "${name}" not found in list of models. Check your spelling OR use a custom modelPath.`);
     }
 
-    return resolvedModelPath;
+    return existsSync(resolve(MODEL_PATH, model.bin));
   }
 
   private createArgs(options?: WhisperCppCommandInputOptions): string[] {
@@ -60,7 +33,13 @@ export class WhisperCommand {
       return [];
     }
 
-    this.validateRuntimeOptions(options);
+    if (this.options.gpu === false && this.options.gpuDevice !== undefined) {
+      throw new Error("Invalid option pair. 'gpuDevice' requires GPU. Remove gpuDevice OR set 'useGpu' to true.");
+    }
+
+    if (this.options.gpuDevice !== undefined && (!Number.isInteger(this.options.gpuDevice) || this.options.gpuDevice < 0)) {
+      throw new Error("Invalid option. 'gpuDevice' must be a non-negative integer.");
+    }
 
     const args: string[] = [];
 
@@ -92,32 +71,22 @@ export class WhisperCommand {
       args.push('-l', options.language);
     }
 
-    if (options.useGpu === false) {
+    if (this.options.gpu === false) {
       args.push('-ng');
     }
 
-    if (options.gpuDevice !== undefined) {
-      args.push('-dev', String(options.gpuDevice));
+    if (this.options.gpuDevice !== undefined) {
+      args.push('-dev', String(this.options.gpuDevice));
     }
 
-    if (options.flashAttention === true) {
+    if (this.options.flashAttention === true) {
       args.push('-fa');
     }
 
-    if (options.flashAttention === false) {
+    if (this.options.flashAttention === false) {
       args.push('-nfa');
     }
 
     return args;
-  }
-
-  private validateRuntimeOptions(options: WhisperCppCommandInputOptions): void {
-    if (options.useGpu === false && options.gpuDevice !== undefined) {
-      throw new Error("Invalid option pair. 'gpuDevice' requires GPU. Remove gpuDevice OR set 'useGpu' to true.");
-    }
-
-    if (options.gpuDevice !== undefined && (!Number.isInteger(options.gpuDevice) || options.gpuDevice < 0)) {
-      throw new Error("Invalid option. 'gpuDevice' must be a non-negative integer.");
-    }
   }
 }

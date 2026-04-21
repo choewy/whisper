@@ -6,18 +6,18 @@ import { WhisperCommandResult, WhisperShellOptions } from './types';
 
 const DEFAULT_SHELL_OPTIONS: Required<WhisperShellOptions> = {
   debug: false,
-  async: false,
 };
 
 export class WhisperShell {
   private isReady = false;
 
-  public async run(command: string, options: WhisperShellOptions = DEFAULT_SHELL_OPTIONS): Promise<string> {
-    const resolvedOptions = this.resolveOptions(options);
+  constructor(readonly options: WhisperShellOptions) {}
 
-    await this.ensureMainBinary(resolvedOptions);
+  public async run(command: string): Promise<string> {
+    const options = { ...DEFAULT_SHELL_OPTIONS, ...this.options };
 
-    const result = await this.execute(command, ROOT_PATH, resolvedOptions);
+    await this.ensure(options);
+    const result = await this.execute(command, ROOT_PATH, options);
 
     if (result.code === 0) {
       return result.stdout;
@@ -26,11 +26,7 @@ export class WhisperShell {
     throw new Error(result.stderr.trim() || `[@choewy/whisper] Command failed: ${command} (exit code: ${result.code})`);
   }
 
-  private resolveOptions(options: WhisperShellOptions): Required<WhisperShellOptions> {
-    return { ...DEFAULT_SHELL_OPTIONS, ...options };
-  }
-
-  private async ensureMainBinary(options: Required<WhisperShellOptions>): Promise<void> {
+  private async ensure(options: Required<WhisperShellOptions>): Promise<void> {
     if (this.isReady) {
       return;
     }
@@ -54,6 +50,7 @@ export class WhisperShell {
     }
 
     console.log(`[@choewy/whisper] 'make' command successful. Root path: ${ROOT_PATH}`);
+
     this.isReady = true;
   }
 

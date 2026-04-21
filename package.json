@@ -15,11 +15,10 @@
   "keywords": [
     "whisper"
   ],
-  "type": "commonjs",
   "scripts": {
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "dev": "NODE_ENV=development nodemon -e ts -w src --exec ts-node src/main.ts",
-    "build": "npx tsc --build && chmod +x dist/download.js",
+    "build": "npx tsc -b tsconfig.build.json && chmod +x dist/download.js",
     "test": "jest --config jest.config.json --passWithNoTests",
     "test:watch": "jest --config jest.config.json --watch"
   },
@@ -44,5 +43,8 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.0"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": "eslint --fix"
   }
 }

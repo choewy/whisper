@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "types": ["node", "jest"],
     "ignoreDeprecations": "6.0",
+    "types": ["node", "jest"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
@@ -14,10 +14,8 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
     "sourceMap": false,
-    "baseUrl": ".",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "tsBuildInfoFile": "./dist/build.tsbuildinfo",
+    "rootDir": ".",
+    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -29,7 +27,5 @@
       "@src": ["src"],
       "@src/*": ["src/*"]
     }
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "vendor", "test"]
+  }
 }

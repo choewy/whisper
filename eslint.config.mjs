@@ -38,25 +38,13 @@ export default tseslint.config(
       'simple-import/imports': [
         'error',
         {
-          groups: [
-            ['^@nestjs(/.*|$)'],
-            ['^node:', '^(?!@nestjs)(@?\\w)'],
-            ['^@libs(/.*|$)'],
-            ['^@apps(/.*|$)'],
-            ['^\\.\\./'],
-            ['^\\./'],
-          ],
+          groups: [['^@nestjs(/.*|$)'], ['^node:', '^(?!@nestjs)(@?\\w)'], ['^@libs(/.*|$)'], ['^@apps(/.*|$)'], ['^\\.\\./'], ['^\\./']],
         },
       ],
     },
   },
   {
-    files: [
-      '**/*.spec.ts',
-      '**/*.test.ts',
-      '**/test/**/*.ts',
-      '**/__tests__/**/*.ts',
-    ],
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/test/**/*.ts', '**/__tests__/**/*.ts'],
     rules: {
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',

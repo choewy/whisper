@@ -1,44 +1,62 @@
-import { existsSync } from 'node:fs';
-import path from 'node:path';
+import { existsSync } from 'fs';
+import path, { resolve } from 'path';
 
 import { WhisperCommand } from './command';
+import { MODEL_PATH } from './constants';
+import { WhisperModelDownloader } from './downloader';
+import { WhisperModel } from './model';
 import { WhisperShell } from './shell';
-import { WhisperTranscribeOptions, WhisperTranscriptLine } from './types';
+import { WhisperCppCommandInputOptions, WhisperOptions, WhisperTranscriptLine } from './types';
 
 export class Whisper {
-  public async transcribe(filePath: string, options: WhisperTranscribeOptions = {}): Promise<WhisperTranscriptLine[]> {
-    const resolvedFilePath = this.resolveRequiredFilePath(filePath);
-    const resolvedModelPath = options.modelPath ? this.resolveOptionalPath(options.modelPath) : undefined;
+  private readonly command: WhisperCommand;
+  private readonly shell: WhisperShell;
 
-    const command = new WhisperCommand().build({
-      filePath: this.wrapPath(resolvedFilePath),
-      modelName: options.modelName,
-      modelPath: resolvedModelPath ? this.wrapPath(resolvedModelPath) : undefined,
-      options: options.commandOptions,
-    });
-
-    console.log('[@choewy/whisper] Transcribing:', filePath, '\n');
-
-    const transcript = await new WhisperShell().run(command, options.shellOptions);
-    return this.toArray(transcript);
+  constructor(
+    readonly options: WhisperOptions = {
+      model: 'base',
+      gpu: false,
+      gpuDevice: 0,
+      flashAttention: false,
+      debug: true,
+      async: true,
+    },
+  ) {
+    this.command = new WhisperCommand(options);
+    this.shell = new WhisperShell({ debug: options.debug });
   }
 
-  private resolveRequiredFilePath(filePath: string): string {
-    const resolved = this.resolveOptionalPath(filePath);
+  async initialize(): Promise<Whisper> {
+    const model = WhisperModel.find(this.options.model);
 
-    if (!existsSync(resolved)) {
-      throw new Error(`[@choewy/whisper] Input file not found: "${filePath}" (resolved: ${resolved})`);
+    if (!model) {
+      throw new Error(`modelName "${this.options.model}" not found in list of models. Check your spelling OR use a custom modelPath.`);
     }
 
-    return resolved;
+    if (!existsSync(resolve(MODEL_PATH, model.bin))) {
+      const downloader = new WhisperModelDownloader();
+      await downloader.run(model.name);
+    }
+
+    return this;
   }
 
-  private resolveOptionalPath(value: string): string {
-    return path.resolve(process.cwd(), value);
-  }
+  async transcribe(input: string, options: WhisperCppCommandInputOptions = {}): Promise<WhisperTranscriptLine[]> {
+    const resolvedPath = path.resolve(process.cwd(), input);
 
-  private wrapPath(value: string): string {
-    return `"${path.normalize(value)}"`;
+    if (!existsSync(resolvedPath)) {
+      throw new Error(`[@choewy/whisper] Input file not found: "${resolvedPath}" (resolved: ${resolvedPath})`);
+    }
+
+    const command = this.command.build({
+      model: this.options.model,
+      input: `"${path.normalize(resolvedPath)}"`,
+      options,
+    });
+
+    console.log('[@choewy/whisper] Transcribing:', input, '\n');
+
+    return this.toArray(await this.shell.run(command));
   }
 
   private toArray(transcript: string): WhisperTranscriptLine[] {

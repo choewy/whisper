@@ -1,3 +1,5 @@
+import { WhisperModelName } from './types';
+
 export class WhisperModel {
   static TINY = new WhisperModel('tiny', 75, 'MB', 390, 'MB');
   static TINY_EN = new WhisperModel('tiny.en', 75, 'MB', 390, 'MB');
@@ -11,7 +13,7 @@ export class WhisperModel {
   static LARGE_V1 = new WhisperModel('large-v1', 2.9, 'GB', 4.7, 'GB');
 
   constructor(
-    readonly name: string,
+    readonly name: WhisperModelName,
     readonly diskSize: number,
     readonly diskUnit: 'KB' | 'MB' | 'GB',
     readonly memorySize: number,
