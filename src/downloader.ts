@@ -52,11 +52,19 @@ export class WhisperModelDownloader {
   }
 
   private ensureDownloadScriptExists() {
+    if (!existsSync(MODEL_PATH)) {
+      throw new Error(`[@choewy/whisper] model path not found in package: ${MODEL_PATH}. Verify @choewy/whisper installation contents.`);
+    }
+
+    if (!existsSync(ROOT_PATH)) {
+      throw new Error(`[@choewy/whisper] whisper.cpp root path not found in package: ${ROOT_PATH}. Verify @choewy/whisper installation contents.`);
+    }
+
     const scriptName = process.platform === 'win32' ? 'download-ggml-model.cmd' : 'download-ggml-model.sh';
     const scriptPath = resolve(MODEL_PATH, scriptName);
 
     if (!existsSync(scriptPath)) {
-      throw new Error('@choewy/whisper downloader is not being run from the correct path! cd to project root and run again.');
+      throw new Error(`[@choewy/whisper] model download script not found: ${scriptPath}. Current model path: ${MODEL_PATH}`);
     }
   }
 
@@ -95,6 +103,13 @@ export class WhisperModelDownloader {
       const child = spawn(command, args, { cwd, stdio: 'inherit' });
 
       child.on('error', (error) => {
+        const code = (error as NodeJS.ErrnoException).code;
+
+        if (code === 'ENOENT') {
+          rejectPromise(new Error(`[@choewy/whisper] Command not found: ${command}. Ensure required tools are installed and available in PATH. (cwd: ${cwd})`));
+          return;
+        }
+
         rejectPromise(error);
       });
 

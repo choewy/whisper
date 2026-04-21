@@ -41,16 +41,16 @@ export class Whisper {
     return this;
   }
 
-  async transcribe(input: string, options: WhisperCppCommandInputOptions = {}): Promise<WhisperTranscriptLine[]> {
+  async transcribe(input: string, options: WhisperCppCommandInputOptions = { language: 'auto' }): Promise<WhisperTranscriptLine[]> {
     const resolvedPath = path.resolve(process.cwd(), input);
 
     if (!existsSync(resolvedPath)) {
       throw new Error(`[@choewy/whisper] Input file not found: "${resolvedPath}" (resolved: ${resolvedPath})`);
     }
 
-    const command = this.command.build({
+    const command = this.command.buildExecutable({
       model: this.options.model,
-      input: `"${path.normalize(resolvedPath)}"`,
+      input: path.normalize(resolvedPath),
       options,
     });
 

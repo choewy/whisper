@@ -21,3 +21,7 @@ jest.config.json
 !vendor
 !package.json
 !pnpm-lock.yaml
+
+# Exclude heavyweight runtime artifacts from whisper.cpp.
+vendor/whisper.cpp/build
+vendor/whisper.cpp/models/*.bin
