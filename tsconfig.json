@@ -14,9 +14,10 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
     "sourceMap": false,
-    "rootDir": ".",
+    "baseUrl": ".",
+    "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "./",
+    "tsBuildInfoFile": "./dist/build.tsbuildinfo",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -28,5 +29,7 @@
       "@src": ["src"],
       "@src/*": ["src/*"]
     }
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "vendor", "test"]
 }

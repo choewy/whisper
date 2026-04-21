@@ -1,5 +1,5 @@
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 
 import { DEFAULT_MODEL, MODEL_PATH, WHISPER_CLI_PATH } from './constants';
 import { WhisperModel } from './model';
