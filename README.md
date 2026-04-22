@@ -32,6 +32,11 @@ pnpm add @choewy/whisper
 - 모델 다운로드 시 `curl` 또는 `wget` 또는 `wget2`
 - Windows 환경은 `make`를 사용할 수 있는 빌드 환경(예: MSYS2/WSL 등) 권장
 
+```bash
+sudo apt update
+sudo apt install -y cmake build-essential
+```
+
 ## Quick Start
 
 ### 1. 모델 다운로드

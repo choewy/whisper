@@ -5,8 +5,8 @@ async function main() {
   await whisper.initialize();
 
   const result = await whisper.transcribe('./test/audio.wav', {
-    language: 'auto',
-    timestampSize: 30,
+    language: 'ko',
+    wordTimestamps: true,
   });
 
   console.log(result);
