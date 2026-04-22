@@ -1,12 +1,12 @@
-import { existsSync } from 'fs';
-import path, { resolve } from 'path';
-
 import { WhisperCommand } from './command';
 import { MODEL_PATH } from './constants';
 import { WhisperModelDownloader } from './downloader';
 import { WhisperModel } from './model';
 import { WhisperShell } from './shell';
 import { WhisperCppCommandInputOptions, WhisperOptions, WhisperTranscriptLine } from './types';
+
+import { existsSync } from 'fs';
+import path, { resolve } from 'path';
 
 export class Whisper {
   private readonly command: WhisperCommand;

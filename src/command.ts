@@ -1,9 +1,9 @@
-import { existsSync } from 'fs';
-import { resolve } from 'path';
-
 import { MODEL_PATH, WHISPER_CLI_PATH } from './constants';
 import { WhisperModel } from './model';
 import { WhisperCppCommandInput, WhisperCppCommandInputOptions, WhisperOptions } from './types';
+
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 
 export class WhisperCommand {
   constructor(readonly options: WhisperOptions) {}

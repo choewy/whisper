@@ -38,7 +38,7 @@ export default tseslint.config(
       'simple-import/imports': [
         'error',
         {
-          groups: [['^@nestjs(/.*|$)'], ['^node:', '^(?!@nestjs)(@?\\w)'], ['^@libs(/.*|$)'], ['^@apps(/.*|$)'], ['^\\.\\./'], ['^\\./']],
+          groups: [['^\\u0000'], ['^node:'], ['^@src(/.*|$)'], ['^\\.\\./'], ['^\\./']],
         },
       ],
     },
