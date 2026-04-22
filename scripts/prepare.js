@@ -5,7 +5,7 @@ function husky() {
 }
 
 function submodules() {
-  spawnSync('git', ['submodule', 'update', '--recursive']);
+  spawnSync('git', ['submodule', 'update', '--init', '--recursive']);
   spawnSync('git', ['submodule', 'foreach', 'git', 'pull']);
 }
 

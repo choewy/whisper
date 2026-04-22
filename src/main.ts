@@ -1,11 +1,12 @@
-import { WhisperModelDownloader } from './downloader';
-import { WhisperModel } from './model';
 import { Whisper } from './whisper';
 
 async function main() {
-  await new WhisperModelDownloader().run(WhisperModel.SMALL.name);
-  const result = await new Whisper().transcribe('./audio.wav', {
+  const whisper = new Whisper({ model: 'small', gpu: false, flashAttention: false });
+  await whisper.initialize();
+
+  const result = await whisper.transcribe('./test/audio.wav', {
     language: 'auto',
+    timestampSize: 30,
   });
 
   console.log(result);
